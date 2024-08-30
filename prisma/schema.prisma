@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  phoneNumber Int @unique
+  pin Int
+
+  name String @default("Не указано")
+  picture String @default("/uploads/no-user-image.png")
+
+  balance Int
+  cashback Int
+
+  // Связь с мойками через промежуточную таблицу
+  washes WashUser[]
+
+  @@map("user")
+  Notification Notification[]
+  StoryView StoryView[]
+  Rating Rating[]
+  FavoriteWash FavoriteWash[]
+  TransactionHistory TransactionHistory[]
+}
+
+model Wash {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name String @default("Новая мойка") @unique
+  picture String @default("/uploads/no-wash-image.png")
+  raiting Float @default(0) // Рейтинг мойки
+
+  story Story[]
+
+  // Связь с пользователями через промежуточную таблицу
+  users WashUser[]
+  posts Post[]
+  promoCodes PromoCode[]
+
+  @@map("wash")
+  Price Price[]
+  Notification Notification[]
+  Rating Rating[]
+  FavoriteWash FavoriteWash[]
+  TransactionHistory TransactionHistory[]
+}
+
+// Промежуточная таблица для связи User и Wash
+model WashUser {
+  id String @id @default(cuid())
+  userId String
+  washId String
+
+  balance Int // Баланс пользователя на конкретной мойке
+
+  user User @relation(fields: [userId], references: [id])
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@map("wash_user")
+}
+
+model Post {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  address String
+  latitude Int
+  longitude String
+  description String
+
+  washId String
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@map("post")
+}
+
+model PromoCode {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  endTime DateTime
+  nominal Int
+
+  washId String
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@map("promo_code")
+}
+
+model Price {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  washId String
+  name String
+  price Int
+
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@map("price")
+}
+
+model Story {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  storyUrl String
+
+  Wash Wash[]
+  StoryView StoryView[]
+
+  @@map("story")
+}
+
+model Notification {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String
+  washId String
+  message String
+  isViewed Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@map("notification")
+}
+
+model StoryView {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String
+  storyId String
+  isViewed Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+  story Story @relation(fields: [storyId], references: [id])
+
+  @@map("story_view")
+}
+
+model Rating {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String
+  washId String
+  rating Float
+
+  user User @relation(fields: [userId], references: [id])
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@unique([userId, washId])
+  @@map("rating")
+}
+
+model FavoriteWash {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String
+  washId String
+
+  user User @relation(fields: [userId], references: [id])
+  wash Wash @relation(fields: [washId], references: [id])
+
+  @@unique([userId, washId])
+  @@map("favorite_wash")
+}
+
+model TransactionHistory {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String
+  washId String?
+  type String // Тип операции: "wash", "balance_topup", "cashback_withdrawal" и т.д.
+  amount Int // Сумма операции
+  description String // Описание операции
+
+  user User @relation(fields: [userId], references: [id])
+  wash Wash? @relation(fields: [washId], references: [id])
+
+  @@map("transaction_history")
+}
