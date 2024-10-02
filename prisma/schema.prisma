@@ -12,8 +12,8 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  phoneNumber Int @unique
-  pin Int
+  phoneNumber String @unique
+  pin String
 
   name String @default("Не указано")
   picture String @default("/uploads/no-user-image.png")
@@ -21,15 +21,12 @@ model User {
   balance Int
   cashback Int
 
+  favorites Wash[]
+
   // Связь с мойками через промежуточную таблицу
   washes WashUser[]
 
   @@map("user")
-  Notification Notification[]
-  StoryView StoryView[]
-  Rating Rating[]
-  FavoriteWash FavoriteWash[]
-  TransactionHistory TransactionHistory[]
 }
 
 model Wash {
@@ -39,9 +36,7 @@ model Wash {
 
   name String @default("Новая мойка") @unique
   picture String @default("/uploads/no-wash-image.png")
-  raiting Float @default(0) // Рейтинг мойки
-
-  story Story[]
+  city String @default("Киров")
 
   // Связь с пользователями через промежуточную таблицу
   users WashUser[]
@@ -50,10 +45,8 @@ model Wash {
 
   @@map("wash")
   Price Price[]
-  Notification Notification[]
-  Rating Rating[]
-  FavoriteWash FavoriteWash[]
-  TransactionHistory TransactionHistory[]
+  user       User?       @relation(fields: [userId], references: [id])
+  userId     String?     @map("user_id")
 }
 
 // Промежуточная таблица для связи User и Wash
@@ -76,9 +69,8 @@ model Post {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   address String
-  latitude Int
-  longitude String
   description String
+  pictures String @default("/uploads/no-post-image.png")
 
   washId String
   wash Wash @relation(fields: [washId], references: [id])
@@ -105,97 +97,9 @@ model Price {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   washId String
-  name String
   price Int
 
   wash Wash @relation(fields: [washId], references: [id])
 
   @@map("price")
-}
-
-model Story {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  storyUrl String
-
-  Wash Wash[]
-  StoryView StoryView[]
-
-  @@map("story")
-}
-
-model Notification {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-
-  userId String
-  washId String
-  message String
-  isViewed Boolean @default(false)
-
-  user User @relation(fields: [userId], references: [id])
-  wash Wash @relation(fields: [washId], references: [id])
-
-  @@map("notification")
-}
-
-model StoryView {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-
-  userId String
-  storyId String
-  isViewed Boolean @default(false)
-
-  user User @relation(fields: [userId], references: [id])
-  story Story @relation(fields: [storyId], references: [id])
-
-  @@map("story_view")
-}
-
-model Rating {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-
-  userId String
-  washId String
-  rating Float
-
-  user User @relation(fields: [userId], references: [id])
-  wash Wash @relation(fields: [washId], references: [id])
-
-  @@unique([userId, washId])
-  @@map("rating")
-}
-
-model FavoriteWash {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-
-  userId String
-  washId String
-
-  user User @relation(fields: [userId], references: [id])
-  wash Wash @relation(fields: [washId], references: [id])
-
-  @@unique([userId, washId])
-  @@map("favorite_wash")
-}
-
-model TransactionHistory {
-  id String @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-
-  userId String
-  washId String?
-  type String // Тип операции: "wash", "balance_topup", "cashback_withdrawal" и т.д.
-  amount Int // Сумма операции
-  description String // Описание операции
-
-  user User @relation(fields: [userId], references: [id])
-  wash Wash? @relation(fields: [washId], references: [id])
-
-  @@map("transaction_history")
 }
