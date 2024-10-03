@@ -17,7 +17,14 @@ export class UserService {
         favorites: {
           select: {
             id: true,
-            name: true
+            address: true,
+            description: true,
+            wash: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
           }
         },
         ...selectObject
@@ -27,15 +34,16 @@ export class UserService {
     if (!user) {
       throw new Error('User not found')
     }
+    console.log('User found:', user) // Логирование
     return user
   }
 
-  async toggleFavorite(userId: string, washId: string) {
+  async toggleFavorite(userId: string, postId: string) {
     const user = await this.getById(userId)
 
     if (!user) throw new NotFoundException('User not found!')
 
-    const isExists = user.favorites.some(wash => wash.id === washId)
+    const isExists = user.favorites.some(post => post.id === postId)
 
     await this.prisma.user.update({
       where: {
@@ -44,12 +52,15 @@ export class UserService {
       data: {
         favorites: {
           [isExists ? 'disconnect' : 'connect']: {
-            id: washId
+            id: postId
           }
         }
       }
     })
 
+    console.log(
+      `Post ${postId} ${isExists ? 'removed from' : 'added to'} favorites`
+    ) // Логирование
     return { message: 'Success' }
   }
 }

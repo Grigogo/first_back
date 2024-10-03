@@ -15,11 +15,11 @@ export class UserController {
 
   @HttpCode(200)
   @Auth()
-  @Patch('profile/favorites/:washId')
+  @Patch('profile/favorites/:postId')
   async toggleFavorite(
     @CurrentUser('id') id: string,
-    @Param('washId') washId: string
+    @Param('postId') postId: string
   ) {
-    return this.userService.toggleFavorite(id, washId)
+    return this.userService.toggleFavorite(id, postId)
   }
 }

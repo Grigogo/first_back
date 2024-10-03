@@ -21,12 +21,14 @@ model User {
   balance Int
   cashback Int
 
-  favorites Wash[]
+  favorites Post[] // Связь с избранными постами
 
   // Связь с мойками через промежуточную таблицу
   washes WashUser[]
 
   @@map("user")
+  PostUser PostUser[]
+  Wash Wash[]
 }
 
 model Wash {
@@ -44,21 +46,23 @@ model Wash {
   promoCodes PromoCode[]
 
   @@map("wash")
-  Price Price[]
+  price Price[]
   user       User?       @relation(fields: [userId], references: [id])
   userId     String?     @map("user_id")
 }
 
 // Промежуточная таблица для связи User и Wash
 model WashUser {
-  id String @id @default(cuid())
-  userId String
-  washId String
+  id       String @id @default(cuid())
+  userId   String
+  washId   String
+  balance  Int
+  bonus    Int
 
-  balance Int // Баланс пользователя на конкретной мойке
+  user     User  @relation(fields: [userId], references: [id])
+  wash     Wash  @relation(fields: [washId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
-  wash Wash @relation(fields: [washId], references: [id])
+  @@unique([userId, washId]) // Добавляем составной ключ
 
   @@map("wash_user")
 }
@@ -70,12 +74,29 @@ model Post {
 
   address String
   description String
-  pictures String @default("/uploads/no-post-image.png")
+  shedule String
+  lat Float
+  lon Float
+  box Int
 
   washId String
   wash Wash @relation(fields: [washId], references: [id])
 
   @@map("post")
+  User User[] // Обратная связь с пользователями
+  PostUser PostUser[]
+}
+
+// Промежуточная таблица для связи User и Post
+model PostUser {
+  id String @id @default(cuid())
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@map("post_user")
 }
 
 model PromoCode {
@@ -96,9 +117,10 @@ model Price {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  washId String
+  serviceName String
   price Int
 
+  washId String
   wash Wash @relation(fields: [washId], references: [id])
 
   @@map("price")
