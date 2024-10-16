@@ -18,6 +18,24 @@ export class AuthController {
 
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
+  @Post('send-otp')
+  async sendOtp(@Body('phoneNumber') phoneNumber: string) {
+    return this.authService.sendOtp(phoneNumber)
+  }
+
+  @UsePipes(new ValidationPipe())
+  @HttpCode(200)
+  @Post('verify-otp-and-set-new-password')
+  async verifyOtpAndSetNewPassword(
+    @Body('phoneNumber') phoneNumber: string,
+    @Body('otp') otp: string,
+    @Body('newPin') newPin: string
+  ) {
+    return this.authService.verifyOtpAndSetNewPassword(phoneNumber, otp, newPin)
+  }
+
+  @UsePipes(new ValidationPipe())
+  @HttpCode(200)
   @Post('login')
   async login(@Body() dto: AuthDto) {
     return this.authService.login(dto)

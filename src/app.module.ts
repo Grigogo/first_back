@@ -6,6 +6,8 @@ import { AppService } from './app.service'
 import { UserModule } from './user/user.module'
 import { WashingModule } from './washing/wash.module'
 import { PostModule } from './post/post.module'
+import { ServeStaticModule } from '@nestjs/serve-static'
+import { join } from 'path'
 
 @Module({
   imports: [
@@ -13,7 +15,14 @@ import { PostModule } from './post/post.module'
     AuthModule,
     UserModule,
     WashingModule,
-    PostModule
+    PostModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Путь к директории с файлами
+      serveRoot: '/uploads', // Префикс маршрута для обслуживания статических файлов
+      serveStaticOptions: {
+        index: false // Отключаем ожидание файла index.html
+      }
+    })
   ],
   controllers: [AppController],
   providers: [AppService]
