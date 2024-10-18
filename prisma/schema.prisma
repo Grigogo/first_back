@@ -32,23 +32,24 @@ model User {
 }
 
 model Wash {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  name String @default("Новая мойка") @unique
-  picture String @default("/uploads/no-wash-image.png")
-  city String @default("Киров")
+  name      String   @default("Новая мойка") @unique
+  picture   String   @default("/uploads/no-wash-image.png")
 
-  // Связь с пользователями через промежуточную таблицу
-  users WashUser[]
-  posts Post[]
+  cityId    String?  // Добавляем поле для связи с городом
+  city      City?    @relation(fields: [cityId], references: [id])
+
+  users     WashUser[]
+  posts     Post[]
   promoCodes PromoCode[]
 
   @@map("wash")
-  price Price[]
-  user       User?       @relation(fields: [userId], references: [id])
-  userId     String?     @map("user_id")
+  price     Price[]
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
 }
 
 // Промежуточная таблица для связи User и Wash
@@ -124,4 +125,15 @@ model Price {
   wash Wash @relation(fields: [washId], references: [id])
 
   @@map("price")
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  washes    Wash[]   // Связь с мойками
+
+  @@map("city")
 }

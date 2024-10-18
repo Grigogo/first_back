@@ -8,6 +8,7 @@ import { WashingModule } from './washing/wash.module'
 import { PostModule } from './post/post.module'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
+import { CityModule } from './city/city.module'
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { join } from 'path'
     AuthModule,
     UserModule,
     WashingModule,
+    CityModule,
     PostModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'), // Путь к директории с файлами

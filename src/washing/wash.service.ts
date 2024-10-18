@@ -11,7 +11,7 @@ export class WashService {
       return this.search(searchTerm)
     } else {
       return this.prisma.wash.findMany({
-        include: { posts: true, price: true } // Включаем посты и прайс-лист
+        include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
       })
     }
   }
@@ -24,7 +24,7 @@ export class WashService {
           mode: 'insensitive'
         }
       },
-      include: { posts: true, price: true } // Включаем посты и прайс-лист
+      include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
     })
   }
 
@@ -37,7 +37,7 @@ export class WashService {
   async getById(id: string) {
     const wash = await this.prisma.wash.findUnique({
       where: { id },
-      include: { posts: true, price: true } // Включаем посты и прайс-лист
+      include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
     })
 
     if (!wash) {

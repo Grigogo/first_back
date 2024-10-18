@@ -17,7 +17,7 @@ export class CreateWashDto {
 
   @IsString()
   @IsOptional()
-  city?: string
+  cityId?: string // Добавляем поле для связи с городом
 
   @IsString()
   @IsOptional()
@@ -49,7 +49,7 @@ export class UpdateWashDto {
 
   @IsString()
   @IsOptional()
-  city?: string
+  cityId?: string // Добавляем поле для связи с городом
 
   @IsString()
   @IsOptional()
