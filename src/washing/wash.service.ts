@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { CreatePriceDto, CreateWashDto, UpdateWashDto } from './dto/wash.dto'
+import { MediaType } from '@prisma/client'
 
 @Injectable()
 export class WashService {
@@ -11,9 +12,23 @@ export class WashService {
       return this.search(searchTerm)
     } else {
       return this.prisma.wash.findMany({
-        include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
+        include: { posts: true, price: true, city: true, stories: true } // Включаем посты и прайс-лист
       })
     }
+  }
+
+  // Получение всех моек в конкретном городе
+  async getWashesByCity(cityId: string) {
+    const washes = await this.prisma.wash.findMany({
+      where: { cityId },
+      include: { posts: true, price: true, city: true, stories: true } // Включаем необходимые данные
+    })
+
+    if (washes.length === 0) {
+      throw new NotFoundException(`No washes found in city with id ${cityId}`)
+    }
+
+    return washes
   }
 
   async search(searchTerm: string) {
@@ -24,7 +39,7 @@ export class WashService {
           mode: 'insensitive'
         }
       },
-      include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
+      include: { posts: true, price: true, city: true, stories: true } // Включаем посты и прайс-лист
     })
   }
 
@@ -37,7 +52,7 @@ export class WashService {
   async getById(id: string) {
     const wash = await this.prisma.wash.findUnique({
       where: { id },
-      include: { posts: true, price: true, city: true } // Включаем посты и прайс-лист
+      include: { posts: true, price: true, city: true, stories: true } // Включаем посты и прайс-лист
     })
 
     if (!wash) {
@@ -152,6 +167,38 @@ export class WashService {
 
     return this.prisma.price.findMany({
       where: { washId }
+    })
+  }
+
+  // Получение всех историй для мойки
+  async getStoriesByWashId(washId: string) {
+    const stories = await this.prisma.story.findMany({
+      where: { washId }
+    })
+
+    if (!stories) {
+      throw new NotFoundException(
+        `Stories for wash with id ${washId} not found`
+      )
+    }
+
+    return stories
+  }
+
+  // Добавление новой истории
+  async createStory(
+    washId: string,
+    mediaUrl: string,
+    mediaType: MediaType,
+    duration: number
+  ) {
+    return this.prisma.story.create({
+      data: {
+        mediaUrl,
+        mediaType,
+        duration,
+        washId
+      }
     })
   }
 }

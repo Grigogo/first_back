@@ -14,6 +14,7 @@ import {
 import { WashService } from './wash.service'
 import { CreatePriceDto, CreateWashDto, UpdateWashDto } from './dto/wash.dto'
 import { AuthGuard } from '@nestjs/passport'
+import { MediaType } from '@prisma/client'
 
 @Controller('washing')
 export class WashController {
@@ -24,6 +25,13 @@ export class WashController {
   @Get()
   async getAll(@Query('searchTerm') searchTerm?: string) {
     return this.washService.getAll(searchTerm)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Get('city/:cityId')
+  async getWashesByCity(@Param('cityId') cityId: string) {
+    return this.washService.getWashesByCity(cityId)
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -91,5 +99,24 @@ export class WashController {
   @Get('prices/:washId')
   async getPrices(@Param('washId') washId: string) {
     return this.washService.getPrices(washId)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Get(':washId/stories')
+  async getStories(@Param('washId') washId: string) {
+    return this.washService.getStoriesByWashId(washId)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Post(':washId/stories')
+  async createStory(
+    @Param('washId') washId: string,
+    @Body('mediaUrl') mediaUrl: string,
+    @Body('mediaType') mediaType: MediaType,
+    @Body('duration') duration: number
+  ) {
+    return this.washService.createStory(washId, mediaUrl, mediaType, duration)
   }
 }

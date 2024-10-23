@@ -170,7 +170,7 @@ export class AuthService {
     const isValidOtp = otp === '123456' // Здесь замените на реальную логику проверки OTP
 
     if (!isValidOtp) {
-      throw new UnauthorizedException('Invalid OTP')
+      throw new UnauthorizedException('Неверный код')
     }
 
     const dto: RegisterDto = {
