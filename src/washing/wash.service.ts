@@ -185,6 +185,56 @@ export class WashService {
     return stories
   }
 
+  async getStoriesWithWashInfo(washId: string) {
+    const wash = await this.prisma.wash.findUnique({
+      where: { id: washId },
+      include: {
+        stories: true // Включаем связанные истории
+      }
+    })
+
+    if (!wash) {
+      throw new NotFoundException(`Wash with id ${washId} not found`)
+    }
+
+    // Преобразуем результат в нужный формат
+    return {
+      washId: wash.id,
+      washName: wash.name,
+      washPicture: wash.picture,
+      washStories: wash.stories.map(story => ({
+        mediaUrl: story.mediaUrl,
+        mediaType: story.mediaType,
+        duration: story.duration
+      }))
+    }
+  }
+
+  // Метод для получения всех историй, сгруппированных по мойкам
+  async getAllStoriesGroupedByWash() {
+    const washesWithStories = await this.prisma.wash.findMany({
+      include: {
+        stories: true // Включаем связанные истории для каждой мойки
+      }
+    })
+
+    if (!washesWithStories || washesWithStories.length === 0) {
+      throw new NotFoundException('No stories found')
+    }
+
+    // Формируем объект в нужном формате
+    return washesWithStories.map(wash => ({
+      washId: wash.id,
+      washName: wash.name,
+      washPicture: wash.picture,
+      washStories: wash.stories.map(story => ({
+        mediaUrl: story.mediaUrl,
+        mediaType: story.mediaType,
+        duration: story.duration
+      }))
+    }))
+  }
+
   // Добавление новой истории
   async createStory(
     washId: string,

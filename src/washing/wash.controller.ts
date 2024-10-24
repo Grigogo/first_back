@@ -110,6 +110,20 @@ export class WashController {
 
   @UseGuards(AuthGuard('jwt'))
   @UsePipes(new ValidationPipe())
+  @Get(':washId/stories-with-info')
+  async getStoriesWithWashInfo(@Param('washId') washId: string) {
+    return this.washService.getStoriesWithWashInfo(washId)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Get('stories/grouped')
+  async getAllStoriesGroupedByWash() {
+    return this.washService.getAllStoriesGroupedByWash()
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
   @Post(':washId/stories')
   async createStory(
     @Param('washId') washId: string,
