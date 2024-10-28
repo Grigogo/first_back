@@ -9,7 +9,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
   app.enableCors()
   // Настраиваем раздачу статических файлов
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')))
+  app.use('/uploads', express.static(join(__dirname, '..', '..', 'uploads')))
   await app.listen(4200)
 }
 bootstrap()

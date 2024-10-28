@@ -222,15 +222,25 @@ export class WashService {
       throw new NotFoundException('No stories found')
     }
 
+    // Фильтруем мойки, у которых нет историй
+    const filteredWashes = washesWithStories.filter(
+      wash => wash.stories.length > 0
+    )
+
     // Формируем объект в нужном формате
-    return washesWithStories.map(wash => ({
-      washId: wash.id,
-      washName: wash.name,
-      washPicture: wash.picture,
-      washStories: wash.stories.map(story => ({
-        mediaUrl: story.mediaUrl,
-        mediaType: story.mediaType,
-        duration: story.duration
+    return filteredWashes.map((wash, index) => ({
+      id: index, // Используем порядковый номер вместо wash.id
+      username: wash.name,
+      title: wash.name,
+      profile: wash.picture,
+      stories: wash.stories.map((story, storyIndex) => ({
+        id: storyIndex,
+        url: story.mediaUrl,
+        type: story.mediaType,
+        duration: story.duration,
+        isReadMore: false,
+        storyId: index, // Используем порядковый номер вместо wash.id
+        isSeen: false
       }))
     }))
   }
