@@ -26,17 +26,24 @@ export class WashService {
         price: true,
         city: true,
         stories: true,
-        washUser: {
-          where: { userId }, // Фильтруем washUser по userId
-          select: {
-            userId: true,
-            balance: true,
-            bonus: true
-          }
-        }
+        washUser: true
       }
     })
-    return washes
+
+    // Переносим balance и bonus на уровень выше для каждого wash
+    const result = washes.map(wash => {
+      const userWashData = wash.washUser.find(user => user.userId === userId) // Ожидаем только один элемент, так как фильтруем по userId
+      console.log('userId', userId)
+
+      return {
+        ...wash,
+        balance: userWashData ? userWashData.balance : 0, // Присваиваем баланс, если есть, иначе 0
+        bonus: userWashData ? userWashData.bonus : 0, // Присваиваем бонус, если есть, иначе 0
+        washUser: undefined // Убираем washUser из ответа
+      }
+    })
+
+    return result
   }
 
   async search(searchTerm: string) {

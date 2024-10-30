@@ -30,7 +30,10 @@ export class WashController {
   @UseGuards(AuthGuard('jwt'))
   @UsePipes(new ValidationPipe())
   @Get('city/:cityId/:userId')
-  async getWashesByCity(@Param('cityId') cityId: string, userId: string) {
+  async getWashesByCity(
+    @Param('cityId') cityId: string,
+    @Param('userId') userId: string
+  ) {
     return this.washService.getWashesByCity(cityId, userId)
   }
 
