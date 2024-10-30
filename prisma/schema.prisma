@@ -18,9 +18,6 @@ model User {
   name String @default("Не указано")
   picture String @default("/uploads/no-user-image.png")
 
-  balance Int
-  cashback Int
-
   favorites Post[] // Связь с избранными постами
 
   // Связь с мойками через промежуточную таблицу
@@ -28,7 +25,6 @@ model User {
 
   @@map("user")
   PostUser PostUser[]
-  Wash Wash[]
 }
 
 model Wash {
@@ -42,13 +38,11 @@ model Wash {
   cityId    String?  // Добавляем поле для связи с городом
   city      City?    @relation(fields: [cityId], references: [id])
 
-  users     WashUser[]
+  washUser WashUser[] @relation("WashToWashUser")
   posts     Post[]
   stories   Story[]  // Связь с историями
   promoCodes PromoCode[]
   price     Price[]
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?  @map("user_id")
 
   @@map("wash")
 }
@@ -79,11 +73,11 @@ model WashUser {
   bonus    Int
 
   user     User  @relation(fields: [userId], references: [id])
-  wash     Wash  @relation(fields: [washId], references: [id])
 
   @@unique([userId, washId]) // Добавляем составной ключ
 
   @@map("wash_user")
+  Wash Wash[] @relation("WashToWashUser")
 }
 
 model Post {

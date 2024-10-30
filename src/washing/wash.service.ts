@@ -17,17 +17,25 @@ export class WashService {
     }
   }
 
-  // Получение всех моек в конкретном городе
-  async getWashesByCity(cityId: string) {
+  // Получение всех моек в конкретном городе с балансом и бонусами для пользователя
+  async getWashesByCity(cityId: string, userId: string) {
     const washes = await this.prisma.wash.findMany({
       where: { cityId },
-      include: { posts: true, price: true, city: true, stories: true } // Включаем необходимые данные
+      include: {
+        posts: true,
+        price: true,
+        city: true,
+        stories: true,
+        washUser: {
+          where: { userId }, // Фильтруем washUser по userId
+          select: {
+            userId: true,
+            balance: true,
+            bonus: true
+          }
+        }
+      }
     })
-
-    if (washes.length === 0) {
-      throw new NotFoundException(`No washes found in city with id ${cityId}`)
-    }
-
     return washes
   }
 
@@ -117,26 +125,70 @@ export class WashService {
     balance: number,
     bonus: number
   ) {
-    const washUser = await this.prisma.washUser.upsert({
+    // Проверяем, существует ли уже запись в таблице washUser для данного пользователя и мойки
+    const existingWashUser = await this.prisma.washUser.findUnique({
       where: {
         userId_washId: {
           userId,
           washId
         }
-      },
-      update: {
-        balance,
-        bonus
-      },
-      create: {
-        userId,
-        washId,
-        balance,
-        bonus
       }
     })
 
-    return washUser
+    if (existingWashUser) {
+      // Если запись существует, обновляем ее
+      const updatedWashUser = await this.prisma.washUser.update({
+        where: {
+          userId_washId: {
+            userId,
+            washId
+          }
+        },
+        data: {
+          balance,
+          bonus
+        }
+      })
+      return updatedWashUser
+    } else {
+      // Если записи не существует, создаем новую
+      const newWashUser = await this.prisma.washUser.create({
+        data: {
+          userId,
+          washId,
+          balance,
+          bonus
+        }
+      })
+
+      // Проверяем, есть ли уже этот userId в поле washUser в таблице Wash
+      const wash = await this.prisma.wash.findUnique({
+        where: { id: washId },
+        include: { washUser: true }
+      })
+
+      console.log('WASH:', wash)
+
+      if (!wash) {
+        throw new NotFoundException(`Wash with id ${washId} not found`)
+      }
+
+      // Если userId еще нет в washUser, добавляем его
+      if (!wash.washUser.some(user => user.userId === userId)) {
+        await this.prisma.wash.update({
+          where: { id: washId },
+          data: {
+            washUser: {
+              connect: {
+                id: newWashUser.id
+              }
+            }
+          }
+        })
+      }
+
+      return newWashUser
+    }
   }
 
   async addPrice(washId: string, createPriceDto: CreatePriceDto) {

@@ -137,9 +137,7 @@ export class AuthService {
         phoneNumber: dto.phoneNumber,
         name: dto.name,
         picture: `https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg`, // Путь через HTTP
-        pin: await hash(dto.pin),
-        balance: 0,
-        cashback: 0
+        pin: await hash(dto.pin)
       }
     })
 
@@ -212,9 +210,7 @@ export class AuthService {
       phoneNumber: user.phoneNumber,
       pin: user.pin,
       name: user.name,
-      picture: user.picture,
-      balance: user.balance,
-      cashback: user.cashback
+      picture: user.picture
     }
   }
 
