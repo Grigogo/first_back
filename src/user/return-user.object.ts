@@ -6,8 +6,6 @@ export const returnUserObject = {
   pin: true,
   name: true,
   picture: true,
-  balance: true,
-  cashback: true,
   favorites: {
     // Обновляем связь с избранными постами
     select: {
