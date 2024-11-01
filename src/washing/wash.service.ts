@@ -263,7 +263,7 @@ export class WashService {
       washPicture: wash.picture,
       washStories: wash.stories.map(story => ({
         mediaUrl: story.mediaUrl,
-        mediaType: story.mediaType,
+        mediaType: story.mediaType.toLowerCase(),
         duration: story.duration
       }))
     }

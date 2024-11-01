@@ -38,6 +38,7 @@ model Wash {
   cityId    String?  // Добавляем поле для связи с городом
   city      City?    @relation(fields: [cityId], references: [id])
 
+
   washUser WashUser[] @relation("WashToWashUser")
   posts     Post[]
   stories   Story[]  // Связь с историями
