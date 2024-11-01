@@ -295,7 +295,7 @@ export class WashService {
       stories: wash.stories.map((story, storyIndex) => ({
         id: storyIndex,
         url: story.mediaUrl,
-        type: story.mediaType,
+        type: story.mediaType.toLowerCase(),
         duration: story.duration,
         isReadMore: false,
         storyId: index, // Используем порядковый номер вместо wash.id
