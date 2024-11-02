@@ -19,6 +19,9 @@ export class CreatePostDto {
   @IsInt()
   box: number
 
+  @IsInt()
+  distance: number
+
   @IsString()
   @IsOptional()
   pictures?: string

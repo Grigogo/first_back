@@ -92,6 +92,7 @@ model Post {
   lat Float
   lon Float
   box Int
+  distance Int @default(0)
 
   washId String
   wash Wash @relation(fields: [washId], references: [id])
