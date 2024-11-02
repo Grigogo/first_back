@@ -7,7 +7,16 @@ export class CityService {
   constructor(private prisma: PrismaService) {}
 
   async getAll() {
-    const cities = await this.prisma.city.findMany()
+    const cities = await this.prisma.city.findMany({
+      select: {
+        id: true,
+        name: true,
+        lat: true,
+        lon: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    })
 
     return cities.sort((a, b) => a.name.localeCompare(b.name, 'ru'))
   }
