@@ -32,7 +32,7 @@ export class UserService {
     })
 
     if (!user) {
-      throw new Error('User not found')
+      throw new NotFoundException('User not found!')
     }
     console.log('User found:', user) // Логирование
     return user
@@ -40,8 +40,6 @@ export class UserService {
 
   async toggleFavorite(userId: string, postId: string) {
     const user = await this.getById(userId)
-
-    if (!user) throw new NotFoundException('User not found!')
 
     const isExists = user.favorites.some(post => post.id === postId)
 
@@ -58,9 +56,9 @@ export class UserService {
       }
     })
 
-    console.log(
-      `Post ${postId} ${isExists ? 'removed from' : 'added to'} favorites`
-    ) // Логирование
-    return { message: 'Success' }
+    const status = isExists ? 'removed' : 'added'
+
+    console.log(`Post ${postId} ${status} from favorites`) // Логирование
+    return { status }
   }
 }
