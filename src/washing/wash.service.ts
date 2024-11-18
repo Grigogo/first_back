@@ -232,6 +232,7 @@ export class WashService {
     return this.prisma.promoCode.create({
       data: {
         ...createPromoDto,
+        endTime: new Date(createPromoDto.endTime),
         washId
       }
     })
