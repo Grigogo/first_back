@@ -31,7 +31,8 @@ export class WashService {
         price: true,
         city: true,
         stories: true,
-        washUser: true
+        washUser: true,
+        promoCodes: true
       }
     })
 
