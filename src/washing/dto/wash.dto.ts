@@ -69,3 +69,14 @@ export class CreatePriceDto {
   @IsNumber()
   price: number
 }
+
+export class CreatePromoDto {
+  @IsString()
+  promoCode: string
+
+  @IsString()
+  endTime: string
+
+  @IsNumber()
+  nominal: number
+}

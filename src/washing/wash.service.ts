@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
-import { CreatePriceDto, CreateWashDto, UpdateWashDto } from './dto/wash.dto'
+import {
+  CreatePriceDto,
+  CreatePromoDto,
+  CreateWashDto,
+  UpdateWashDto
+} from './dto/wash.dto'
 import { MediaType } from '@prisma/client'
 
 @Injectable()
@@ -210,6 +215,23 @@ export class WashService {
     return this.prisma.price.create({
       data: {
         ...createPriceDto,
+        washId
+      }
+    })
+  }
+
+  async addPromo(washId: string, createPromoDto: CreatePromoDto) {
+    const wash = await this.prisma.wash.findUnique({
+      where: { id: washId }
+    })
+
+    if (!wash) {
+      throw new NotFoundException(`Wash with id ${washId} not found`)
+    }
+
+    return this.prisma.promoCode.create({
+      data: {
+        ...createPromoDto,
         washId
       }
     })

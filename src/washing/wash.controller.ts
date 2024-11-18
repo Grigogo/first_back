@@ -12,7 +12,12 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { WashService } from './wash.service'
-import { CreatePriceDto, CreateWashDto, UpdateWashDto } from './dto/wash.dto'
+import {
+  CreatePriceDto,
+  CreatePromoDto,
+  CreateWashDto,
+  UpdateWashDto
+} from './dto/wash.dto'
 import { AuthGuard } from '@nestjs/passport'
 import { MediaType } from '@prisma/client'
 
@@ -95,6 +100,16 @@ export class WashController {
     @Body() createPriceDto: CreatePriceDto
   ) {
     return this.washService.addPrice(washId, createPriceDto)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  @Post('promo/:washId')
+  async addPromo(
+    @Param('washId') washId: string,
+    @Body() createPromoDto: CreatePromoDto
+  ) {
+    return this.washService.addPromo(washId, createPromoDto)
   }
 
   @UseGuards(AuthGuard('jwt'))
